@@ -1,0 +1,6 @@
+rooms: 62
+room_list: rooms.csv 
+grid_rows: 16
+grid_cols: 52
+grid_id: tileIds.csv
+grid_con: connections.csv
