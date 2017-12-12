@@ -2,17 +2,14 @@
 #define _QPATHSH_
 #include <string>
 #include <vector>
+#include "Tile.h"
 
 typedef struct {
     std::string name;
-    int origin;
+    Tile* origin;
 } Room;
 
-const double GAMMA = 0.9;
-const double RMAX = 100.0;
-const double QNULL = - std::numeric_limits<double>::max();
-
-std::vector<Room> roomData;
-std::vector<Tile> tiles;
+extern std::vector<Room> roomData;
+extern std::vector<Tile> tiles;
 
 #endif

@@ -2,13 +2,15 @@
 #include <string>
 #include <cctype>
 #include <queue>
-#include <cstdlib>
 #include "DataBuilder.h"
 #include "QPaths.h"
-#include "Tile.h"
 
 using namespace std;
-vector<Tile> tiles;
+
+
+std::vector<Room> roomData;
+std::vector<Tile> tiles;
+/*
 
 bool compareString(string* s1, string* s2){
     if(s1 == NULL || s2 == NULL || s1->length() != s2->length()){
@@ -26,8 +28,9 @@ bool compareString(string* s1, string* s2){
 
 }
 
+
 int roomIdByName(string* name){
-    if(name == NULL || rooms == NULL){
+    if(name == NULL ){|| rooms == NULL){
         return -1;
     }
     int loc = -1;
@@ -40,14 +43,14 @@ int roomIdByName(string* name){
     return loc;
 }
 
-
+*/
 bool parseArgs(int argc, char* argv[]){
     if(argc != 2){
         cerr << "Usage ./QLearnPathFinder {path to data}" << endl;
         return false;
     }
 }
-
+/*
 vector<int> getPath(Mtrx* q, int cur, int end){
     vector<int> path;
     path.push_back(cur);
@@ -75,41 +78,25 @@ vector<int> getPath(Mtrx* q, int cur, int end){
     return path;
 }
 
-
+*/
 
 int main(int argc, char* argv[]){
-    string loc, fName;
     if ( parseArgs(argc, argv) ){
         DataBuilder db;
         if( !db.load(argv[1]) ){
             return EXIT_FAILURE;
         }
 
-        rooms = db.getRooms();
-        tiles = db.getTiles();
-        gridWidth = db.width();
-        string home ("440");
-        int homeId = roomIdByName(&home);
-        int homeTile = rooms->at(homeId).origin;
-
-
-        if(rooms == NULL || tiles == NULL){
-            cerr << "Error parsing tile data" << endl;
-            return EXIT_FAILURE;
-        }
-
-        Mtrx* r = genR(homeId);
-        Mtrx* q = genQ();
-
-        if(true){
-            prefillQ(q, homeTile);
-        }
-        printMatrix(q);
+        //rooms = db.getRooms();
+        //db.getTiles();
+        //string home ("440");
+        //int homeId = roomIdByName(&home);
+        //int homeTile = rooms->at(homeId).origin;
 
         // Learning
 
         // Read-Eval-Print
-        string cmd;
+    /*    string cmd;
         cout << "Target: ";
         while(cin >> cmd){
             int targetId = roomIdByName(&cmd);
@@ -125,13 +112,7 @@ int main(int argc, char* argv[]){
                 }
             }
             cout << "Target: ";
-        }
-        delete q;
-        delete r;
-        delete tiles;
-        delete rooms;
-        tiles = NULL;
-        rooms= NULL;
+        } */
         return EXIT_SUCCESS;
     } else {
         return EXIT_FAILURE;

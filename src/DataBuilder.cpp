@@ -1,7 +1,10 @@
 #include "DataBuilder.h"
+#include "Tile.h"
+#include "QPaths.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 using namespace std;
 
@@ -82,61 +85,100 @@ bool DataBuilder::load(char* metaName){
         cerr << "Could not find file: " << fullPath << endl;
         return false;
     }
-    return true;
+    return getTiles() && getRooms();
 }
 
-vector<Room>* DataBuilder::getRooms(){
+
+bool DataBuilder::getRooms(){
     if(!init){
-        return NULL;
+        return false;
     }
-    vector<Room>* rooms = new vector<Room>();
-    Room cur;
-    rooms->push_back(cur);
-    int id, x, y;
+    roomData.reserve(rCount + 1);  //  Cant do this because no constructor
+    int roomId, x, y;
+    string roomName;
     ifstream f (rName);
     string line, temp;
+    Room cur;
     while(getline(f, line)){
         stringstream ls (line);
         getline(ls, temp, ',');
-        id = stoi(temp);
-        getline(ls, temp, ',');
-        cur.name = temp;
+        roomId = stoi(temp);
+        getline(ls, roomName, ',');
         getline(ls, temp, ',');
         x = stoi(temp);
         getline(ls, temp);
         y = stoi(temp);
-        cur.origin = y * w + x;
-        rooms->push_back(cur);
+
+        assert(roomId > 0 && roomId <= rCount);
+        assert(x < w && y < h);
+        assert(tiles[y*w + x].getRoomId() == roomId);
+        cur.name = roomName;
+        cur.origin = &(tiles[y*w + x]);
+        roomData[roomId] = cur;
     }
-    return rooms;
+    return true;
 }
 
-vector<Tile>* DataBuilder::getTiles(){
-    if(!init){
-        return NULL;
-    }
-    Tile cur;
-    vector<Tile>* tiles = new vector<Tile>();
-    ifstream idFile (tName);
-    ifstream adjFile (aName);
-    string idLine, adjLine;
-    while( getline(idFile, idLine) && getline(adjFile, adjLine) ){
-        stringstream idStream (idLine);
-        stringstream adjStream (adjLine);
-        string idToken, adjToken;
-        while( getline(idStream, idToken, ',') && getline(adjStream, adjToken, ',')){
-            cur.rId = stoi(idToken);
-            if(adjToken.length() == 4){
-                for(int i = 0; i < 4; i++){
-                    cur.adj[i] = adjToken[i] == 'y';
-                for(int i = 0; i < 4; i++){
-                    cur.adj[i] = false;
-                }
+bool DataBuilder::getTiles(){
+    if(init){
+        tiles.reserve(w * h);
+        ifstream idFile (tName);
+        string idLine;
+        int tileCount = 0;
+        while( getline(idFile, idLine) ){
+            stringstream idStream (idLine);
+            string idToken;
+            while( getline(idStream, idToken, ',')){
+                int rId = stoi(idToken);
+                tiles[tileCount].init(rId, tileCount, w);
+                tileCount++;
             }
-            tiles->push_back(cur);
         }
+        idFile.close();
+        ifstream adjFile (aName);
+        string adjLine;
+        tileCount = 0;
+        while( getline(adjFile, adjLine) ){
+            stringstream adjStream (adjLine);
+            string adjToken;
+            while( getline(adjStream, adjToken, ',')){
+                if(adjToken.length() == 4){
+                    Tile* left, right, up, down;
+                    if(adjToken[0] == 'y'){
+                        assert(tileCount % w != 0);
+                        left = &(tiles[tileCount - 1]);
+                    } else {
+                        left = NULL;
+                    }
+                    if(adjToken[1] == 'y'){
+                        assert(tileCount % w != w - 1);
+                        left = &(tiles[tileCount + 1]);
+                    } else {
+                        left = NULL;
+                    }
+                    if(adjToken[2] == 'y'){
+                        assert(tileCount - w >= 0);
+                        left = &(tiles[tileCount - w]);
+                    } else {
+                        left = NULL;
+                    }
+                    if(adjToken[3] == 'y'){
+                        assert(tileCount + w < w * h);
+                        left = &(tiles[tileCount + w]);
+                    } else {
+                        left = NULL;
+                    }
+                } else {
+                    tiles[tileCount].setAdj(NULL, NULL, NULL, NULL);
+                }
+                tileCount++;
+            }
+        }
+        adjFile.close();
+        return true;
+    } else {
+        return false;
     }
-    return tiles;
 }
 
 int DataBuilder::width() {
