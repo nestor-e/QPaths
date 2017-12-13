@@ -10,6 +10,8 @@
 #include <string>
 #include <cctype>
 #include <queue>
+#include <cstdlib>
+#include <ctime>
 #include "DataBuilder.h"
 #include "QPaths.h"
 
@@ -76,6 +78,7 @@ int main(int argc, char* argv[]){
     string quitText ("quit");
     string listText ("list");
     string promptText ("Target/Command: ");
+    srand(time(NULL));
 
     if ( parseArgs(argc, argv, &initQfromDistance, &verbosePrinting) ){
 

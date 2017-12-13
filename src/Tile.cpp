@@ -15,6 +15,7 @@
 #include <vector>
 #include <queue>
 #include <sstream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -110,7 +111,7 @@ Tile* Tile::qLearnRec(Tile* home, bool verbose){
 
     //  Check for stability
     double stability = abs( (oldQ - Q[action])  / oldQ ) ;
-    if(stability < STABILITY_THRESHOLD){
+    if(stability < STABILITY_THRESHOLD && Q[action] > 0){
         stablePasses++;
     } else {
         stablePasses = 0;
