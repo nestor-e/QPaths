@@ -27,6 +27,7 @@
 *.out
 *.app
 
-QLearnPathFinder
+src/QLearnPathFinderDBG
+src/QLearnPathFinder
 results
 results/*
