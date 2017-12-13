@@ -1,3 +1,11 @@
+/*
+    Edward Nestor
+    CSCI 402: AI
+    Final Project: Q Learning for path finding
+    QPaths.cpp: Contains main method as well as helper functions and shared data
+    structures.
+*/
+
 #include <iostream>
 #include <string>
 #include <cctype>
@@ -7,7 +15,7 @@
 
 using namespace std;
 
-
+//  Global shared data structure definitions
 vector<Room> roomData;
 vector<Tile> tiles;
 
@@ -70,6 +78,8 @@ int main(int argc, char* argv[]){
     string promptText ("Target/Command: ");
 
     if ( parseArgs(argc, argv, &initQfromDistance, &verbosePrinting) ){
+
+        //  Set up roomData and tiles data structures
         DataBuilder db;
         if( !db.load(argv[1]) ){
             return EXIT_FAILURE;
@@ -100,6 +110,9 @@ int main(int argc, char* argv[]){
                 startPoint->qLearn(homeTile, verbosePrinting);
                 startPoint = Tile::selectUnstable(homeTile);
                 cout << endl ;
+            } else {
+                startPoint->qLearn(homeTile, verbosePrinting);
+                startPoint = Tile::selectUnstable(homeTile);
             }
         }
 

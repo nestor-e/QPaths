@@ -1,3 +1,11 @@
+/*
+    Edward Nestor
+    CSCI 402: AI
+    Final Project: Q Learning for path finding
+    DataBuilder.cpp: Defines DataBuilder object, which parses data files to fill in
+    the shared data structures in QPaths.h
+*/
+
 #include "DataBuilder.h"
 #include "Tile.h"
 #include "QPaths.h"

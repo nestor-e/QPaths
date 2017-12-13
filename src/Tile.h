@@ -1,3 +1,11 @@
+/*
+    Edward Nestor
+    CSCI 402: AI
+    Final Project: Q Learning for path finding
+    Tile.h: Defines Tile object, contains logic for Q Learning and path finding
+    as well as managing the relations between tiles
+*/
+
 #ifndef _TILEH_
 #define _TILEH_
 
