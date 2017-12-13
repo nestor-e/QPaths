@@ -93,12 +93,11 @@ bool DataBuilder::getRooms(){
     if(!init){
         return false;
     }
-    roomData.reserve(rCount + 1);  //  Cant do this because no constructor
+    roomData.resize(rCount + 1);  //  Cant do this because no constructor
     int roomId, x, y;
     string roomName;
     ifstream f (rName);
     string line, temp;
-    Room cur;
     while(getline(f, line)){
         stringstream ls (line);
         getline(ls, temp, ',');
@@ -112,16 +111,15 @@ bool DataBuilder::getRooms(){
         assert(roomId > 0 && roomId <= rCount);
         assert(x < w && y < h);
         assert(tiles[y*w + x].getRoomId() == roomId);
-        cur.name = roomName;
-        cur.origin = &(tiles[y*w + x]);
-        roomData[roomId] = cur;
+        roomData[roomId].name = new string (roomName);
+        roomData[roomId].origin = &(tiles[y*w + x]);
     }
     return true;
 }
 
 bool DataBuilder::getTiles(){
     if(init){
-        tiles.reserve(w * h);
+        tiles.resize(w * h);
         ifstream idFile (tName);
         string idLine;
         int tileCount = 0;
@@ -143,31 +141,36 @@ bool DataBuilder::getTiles(){
             string adjToken;
             while( getline(adjStream, adjToken, ',')){
                 if(adjToken.length() == 4){
-                    Tile* left, right, up, down;
+                    Tile* left, * right, * up, * down;
+                    // Left
                     if(adjToken[0] == 'y'){
                         assert(tileCount % w != 0);
                         left = &(tiles[tileCount - 1]);
                     } else {
                         left = NULL;
                     }
+                    // Right
                     if(adjToken[1] == 'y'){
                         assert(tileCount % w != w - 1);
-                        left = &(tiles[tileCount + 1]);
+                        right = &(tiles[tileCount + 1]);
                     } else {
-                        left = NULL;
+                        right = NULL;
                     }
+                    //Up
                     if(adjToken[2] == 'y'){
                         assert(tileCount - w >= 0);
-                        left = &(tiles[tileCount - w]);
+                        up = &(tiles[tileCount - w]);
                     } else {
-                        left = NULL;
+                        up = NULL;
                     }
+                    //Down
                     if(adjToken[3] == 'y'){
                         assert(tileCount + w < w * h);
-                        left = &(tiles[tileCount + w]);
+                        down = &(tiles[tileCount + w]);
                     } else {
-                        left = NULL;
+                        down = NULL;
                     }
+                    tiles[tileCount].setAdj(left, right, up, down);
                 } else {
                     tiles[tileCount].setAdj(NULL, NULL, NULL, NULL);
                 }

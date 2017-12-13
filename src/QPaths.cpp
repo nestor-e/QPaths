@@ -8,9 +8,9 @@
 using namespace std;
 
 
-std::vector<Room> roomData;
-std::vector<Tile> tiles;
-/*
+vector<Room> roomData;
+vector<Tile> tiles;
+
 
 bool compareString(string* s1, string* s2){
     if(s1 == NULL || s2 == NULL || s1->length() != s2->length()){
@@ -28,91 +28,110 @@ bool compareString(string* s1, string* s2){
 
 }
 
-
-int roomIdByName(string* name){
-    if(name == NULL ){|| rooms == NULL){
-        return -1;
+Room* findRoom(string* name){
+    if(name == NULL ){
+        return NULL;
     }
-    int loc = -1;
-    for(int i = 1; i < rooms->size(); i++){
-        if(compareString( name, &(rooms->at(i).name)) ){
-            loc =  i;
-            break;
+    for(int i = 0; i < roomData.size(); i++){
+        if( compareString( name, roomData[i].name) ){
+            return &(roomData[i]);
         }
     }
-    return loc;
+    return NULL;
 }
 
-*/
-bool parseArgs(int argc, char* argv[]){
-    if(argc != 2){
-        cerr << "Usage ./QLearnPathFinder {path to data}" << endl;
+bool parseArgs(int argc, char* argv[], bool* useInit, bool* verboseMode){
+    if(argc != 4){
+        cerr << "Usage " << argv[0] << " {path to data} {initialize Q y/n} {use verbose printing y/n}" << endl;
         return false;
     }
+    *useInit = argv[2][0] == 'y' || argv[2][0] == 'Y';
+    *verboseMode = argv[3][0] == 'y' || argv[3][0] == 'Y';
+    return true;
 }
-/*
-vector<int> getPath(Mtrx* q, int cur, int end){
-    vector<int> path;
+
+
+vector<Tile*> getPath(Tile* target, Tile* home){
+    vector<Tile*> path;
+    Tile* cur =  target;
     path.push_back(cur);
-    while( cur != end ){
-        cout << cur << endl;
-        int next = tileMaxQ(q, cur);
-        switch(next){
-            case 0:
-                cur = left(cur);
-                break;
-            case 1:
-                cur = right(cur);
-                break;
-            case 2:
-                cur = up(cur);
-                break;
-            case 3:
-                cur = down(cur);
-                break;
-            default:
-                return path;
-        }
+    while( cur != home ){
+        cur = cur->nextTile();
         path.push_back(cur);
     }
     return path;
 }
 
-*/
-
 int main(int argc, char* argv[]){
-    if ( parseArgs(argc, argv) ){
+    bool initQfromDistance, verbosePrinting;
+    string homeName ("441");
+    string quitText ("quit");
+    string listText ("list");
+    string promptText ("Target/Command: ");
+
+    if ( parseArgs(argc, argv, &initQfromDistance, &verbosePrinting) ){
         DataBuilder db;
         if( !db.load(argv[1]) ){
             return EXIT_FAILURE;
         }
 
-        //rooms = db.getRooms();
-        //db.getTiles();
-        //string home ("440");
-        //int homeId = roomIdByName(&home);
-        //int homeTile = rooms->at(homeId).origin;
+        Room* home = findRoom(&homeName);
+
+        if(home == NULL ){
+            cerr << "Unable to locate home room: " << homeName << endl;
+            return EXIT_FAILURE;
+        }
+        Tile* homeTile = home->origin;
+        if(homeTile == NULL ){
+            cerr << "Home room " << homeName << " has no associated tile"<< endl;
+            return EXIT_FAILURE;
+        }
+
+        Tile::calcTables(homeTile, initQfromDistance);
+
 
         // Learning
+        int epochCount = 0;
+        Tile* startPoint = Tile::selectUnstable(homeTile);
+        while( startPoint != NULL ){
+            epochCount++;
+            if(verbosePrinting){
+                cout << "Begining training pass " << epochCount << endl;
+                startPoint->qLearn(homeTile, verbosePrinting);
+                startPoint = Tile::selectUnstable(homeTile);
+                cout << endl ;
+            }
+        }
 
         // Read-Eval-Print
-    /*    string cmd;
-        cout << "Target: ";
+        string cmd;
+        cout << promptText;
         while(cin >> cmd){
-            int targetId = roomIdByName(&cmd);
-            if(targetId < 0){
-                cout << "Room " << cmd << " not recognied." << endl;
-            } else {
-                vector<int> path = getPath(q, targetId, homeId);
-                for(int i = path.size() - 1; i >= 0; i--){
-                    cout << rooms->at(path[i]).name << " (" << path[i] << ")" << endl;
+            if( compareString(&cmd, &quitText) ){
+                break;
+            } else if( compareString(&cmd, &listText) ){
+                for(int i = 1; i < roomData.size(); i++){
+                    cout << *(roomData[i].name) << endl;
                 }
-                for(int i = 1; i < path.size(); i++){
-                    cout << rooms->at(path[i]).name << " (" << path[i] << ")" << endl;
+            } else {
+                Room* target = findRoom(&cmd);
+                if(target == NULL){
+                    cout << "Room " << cmd << " not recognied." << endl;
+                } else {
+                    vector<Tile*> path = getPath( target->origin, homeTile);
+                    for(int i = path.size() - 1; i >= 0; i--){
+                        cout << *(path[i]->getRoomName()) << ":" << path[i]->getCoords() << " --> ";
+                    }
+                    for(int i = 1; i < path.size() - 1; i++){
+                        cout << *(path[i]->getRoomName()) << ":" << path[i]->getCoords() << " --> ";
+                    }
+                    cout << *(path[path.size() - 1]->getRoomName()) << ":" << path[path.size() - 1]->getCoords() << endl;
                 }
             }
-            cout << "Target: ";
-        } */
+            cout << promptText;
+        }
+
+        cout << endl;
         return EXIT_SUCCESS;
     } else {
         return EXIT_FAILURE;

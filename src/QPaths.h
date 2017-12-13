@@ -5,7 +5,7 @@
 #include "Tile.h"
 
 typedef struct {
-    std::string name;
+    std::string* name;
     Tile* origin;
 } Room;
 
