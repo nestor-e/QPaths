@@ -1,6 +1,7 @@
 Edward Nestor
 CSCI 402: AI
 Final Project: Q Learning Path Finder
+12/12/17
 
         Directories:
 The program and source code are in the src directory.
@@ -9,7 +10,7 @@ Stored outputs from the program are in the results directory.
 
 
         Compiling:
-From the src directory, the program can be compiled using:
+From the src directory, the program can be compiled on linux systems using:
     g++ -std=c++11 -o QLearnPathFinder QPaths.cpp Tile.cpp DataBuilder.cpp
 
 or:
@@ -17,7 +18,7 @@ or:
 
 
         Running:
-From the src directory, run the program using:
+After compiling, from the src directory, run the program using:
     ./QLearnPathFinder {path to data} {initialize Q y/n} {use verbose printing y/n}
 
 The data path should point to a metadata file containing required details and
